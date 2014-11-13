@@ -16,3 +16,9 @@ Notes
 Run main.jape for homework 6 (part 4) and click annotation "TitleWithWeight" to see all possible titles. 
 
 See the comments in person_title_with_weight.jape for the definition of different weights.
+
+Screenshots
+=============
+![screenshot1](https://github.com/qiaoshun8888/NLP_HW6/blob/master/screenshot1.png)
+
+![screenshot2](https://github.com/qiaoshun8888/NLP_HW6/blob/master/screenshot2.png)
