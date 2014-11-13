@@ -1,0 +1,160 @@
+Imports: {
+  import static gate.Utils.stringFor;
+  import static gate.Utils.inDocumentOrder;
+}
+Phase:PersonTitleWithWeight
+Input: PersonName Lookup Token Sentence Split
+Options: control = brill
+// appelt / brill
+
+
+
+
+// The tokens that preceding a person name could be a title.
+// weight: 1.0
+Rule: PersonTitleWithWeight1
+(
+  ({Lookup.majorType == "Title"}):t
+):ptww1
+-->
+{
+  AnnotationSet tSet = bindings.get("t");
+  AnnotationSet ptww1Set = bindings.get("ptww1");
+
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonTitleWithWeight1");
+  features.put ("title", stringFor(doc, tSet));
+  features.put ("title_weight", 1.0);
+  outputAS.add(ptww1Set.firstNode(), ptww1Set.lastNode(), "TitleWithWeight", features);
+}
+
+
+
+
+// The tokens that we already know they are real titles.
+// case 1: token appears at the beginning of a sentence.
+// weight: 0.9
+// case 2: token doesn't appear at the beginning of a sentence.
+// weight: 0.5
+Rule: PersonTitleWithWeight2
+(
+  ({Token.kind==word, Token.category==NNP, Token.orth==upperInitial})[1,4]:t
+  ({PersonName}):p
+):ptww2
+-->
+{
+  AnnotationSet tSet = bindings.get("t");
+  List<Annotation> tList = inDocumentOrder(tSet);
+
+  Long firstStart = tList.get(0).getStartNode().getOffset();
+
+  AnnotationSet sSet = inputAS.get("Sentence");
+  List<Annotation> sList = inDocumentOrder(sSet);
+
+  boolean sentenceFound = false;
+  Annotation sAnn = null;
+  //find the sentence in the document containing possible title
+  for (int i=0; i < sList.size();i++) {
+    sAnn = sList.get(i); 
+    if (tList.get(0).withinSpanOf(sAnn)) {
+      sentenceFound = true; 
+      break;
+    }
+  }
+
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonTitleWithWeight2");
+
+  // If sentence contains possible title sequence
+  if (sentenceFound) {
+    String tokStr = "";  
+      for (int j = 0; j < tList.size(); j++) {
+        tokStr = tokStr + tList.get(j).getFeatures().get("string")+ " ";
+      }
+    tokStr = tokStr.trim();
+    features.put("title", tokStr);
+    // Sentence doesn't start with the first token in the possible title sequence
+    if (sAnn.getStartNode().getOffset() != firstStart) {
+      // this is the token that right before a person's name and it's not at the beginning of a sentence. So it is probably a title.
+      features.put("title_weight", 0.9);
+    }
+    else {
+      // Because it appears at the beginning of a sentence, so it might be a title.
+      features.put("title_weight", 0.5);
+    }
+  }
+
+  outputAS.add(tSet.firstNode(), tSet.lastNode(), "TitleWithWeight", features);
+}
+
+
+
+
+// 1~3 Tokens with the first token starts with a capitial letter but followed by a token that is not starts with capital. Then the first token could still have a small chance to be a title.
+// weight: 0.1
+// e.g. Prof. Alex's house (Title + first/last name)
+// e.g. Sir and Madam are titles.
+Rule: PersonTitleWithWeight3
+(
+  ({Token.kind==word, Token.category==NNP, Token.orth == upperInitial})[1,3]:t
+  {Token.kind==word, Token.orth != upperInitial}
+):ptww3
+-->
+{ 
+  AnnotationSet tSet = bindings.get("t");
+  List<Annotation> tList = inDocumentOrder(tSet);
+  AnnotationSet ptww3Set = bindings.get("ptww3");
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonTitleWithWeight3");
+  features.put ("title", tList.get(0).getFeatures().get("string"));
+  features.put ("title_weight", 0.1);
+  Node firstNode = ptww3Set.firstNode();
+  outputAS.add(firstNode, ptww3Set.nextNode(firstNode), "TitleWithWeight", features);
+}
+
+
+
+// 1~3 Tokens with the first token starts with a capitial letter but followed by a token that is a VBZ. Then the first token has a small(er than PersonTitleWithWeight3) chance to be a title.
+// weight: 0.05
+// e.g. Mr Smith is ...
+// Note: this feature causes lots of false positive, such as (Jonny) is... (Evans) has ...
+// But we can solve this issue by easily expanding our first_name and last_name list.
+Rule: PersonTitleWithWeight4
+(
+  ({Token.kind==word, Token.category==NNP, Token.orth == upperInitial})[1,3]:t
+  {Token.kind==word, Token.category==VBZ, Token.orth != upperInitial}
+):ptww4
+-->
+{ 
+  AnnotationSet tSet = bindings.get("t");
+  List<Annotation> tList = inDocumentOrder(tSet);
+  AnnotationSet ptww4Set = bindings.get("ptww4");
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonTitleWithWeight4");
+  features.put ("title", tList.get(0).getFeatures().get("string"));
+  // 
+  features.put ("title_weight", 0.05);
+  Node firstNode = ptww4Set.firstNode();
+  outputAS.add(firstNode, ptww4Set.nextNode(firstNode), "TitleWithWeight", features);
+}
+
+
+
+
+// any NNP token starts with a capital letter could be used as a title
+// weight: 0.01
+Rule: PersonTitleWithWeight5
+(
+  ({Token.kind==word, Token.category==NNP, Token.orth == upperInitial}):t
+):ptww5
+-->
+{ 
+  AnnotationSet tSet = bindings.get("t");
+  AnnotationSet ptww5Set = bindings.get("ptww5");
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonTitleWithWeight5");
+  features.put ("title", stringFor(doc, tSet));
+  // This chance is small.
+  features.put ("title_weight", 0.01);
+  outputAS.add(ptww5Set.firstNode(), ptww5Set.lastNode(), "TitleWithWeight", features);
+}

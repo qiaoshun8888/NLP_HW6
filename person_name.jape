@@ -1,0 +1,77 @@
+Imports: {import static gate.Utils.*;}
+Phase:PersonName
+Input: Lookup Token 
+Options: control = appelt
+
+// Based on the titles, first names and last names we knew to give the annotations.
+
+Rule: PersonName1
+Priority: 5
+(
+(
+  (
+    ({Lookup.majorType == "Name", Lookup.minorType == "first_name"}):fn1
+    ({Lookup.majorType == "Name", Lookup.minorType == "last_name"})?:ln1
+  )
+  |
+  (
+    ({Lookup.majorType == "Name", Lookup.minorType == "last_name"}):ln1
+  )
+)
+):pn1
+-->
+{
+  AnnotationSet fn1Set = bindings.get("fn1");
+  AnnotationSet ln1Set = bindings.get("ln1");
+  AnnotationSet pn1Set = bindings.get("pn1");
+  
+  String first_name = fn1Set != null ? stringFor(doc, fn1Set) : "";
+  String last_name = ln1Set != null ? stringFor(doc, ln1Set) : "";
+
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonName1");
+  if (first_name.length() != 0) {
+    features.put("first_name", first_name);
+    features.put("first_name_weight", "1.0");
+    features.put("last_name", "");
+    features.put("last_name_weight", "0.0");
+  } 
+  if (last_name.length() != 0) {
+    features.put("last_name", last_name);
+    features.put("last_name_weight", "1.0");
+  }
+  outputAS.add(pn1Set.firstNode(), pn1Set.lastNode(), "PersonName", features);
+}
+
+Rule: PersonName2
+Priority: 4
+(
+  ({Lookup.majorType == "Title"}):t
+  ({Token.orth == upperInitial})[1,2]:pn2
+  /*
+  ( 
+    ({Token.kind==word, Token.category==NNP, Token.orth==upperInitial}):fn2
+    ({Token.kind==word, Token.category==NNP, Token.orth==upperInitial}):ln2
+  ):pn2
+  */
+)
+-->
+{
+  AnnotationSet tSet = bindings.get("t");
+  AnnotationSet pn2Set = bindings.get("pn2");
+  List<Annotation> nList = inDocumentOrder(pn2Set);
+  FeatureMap features = Factory.newFeatureMap();
+  features.put ("rule", "PersonName2");
+  if (nList.size() == 2) {
+    features.put("first_name", stringFor(doc, nList.get(0)));
+    features.put("first_name_weight", "1.0");
+    features.put("last_name", stringFor(doc, nList.get(1)));
+    features.put("last_name_weight", "1.0");
+  } else if (nList.size() == 1) {
+    features.put("first_name", stringFor(doc, nList.get(0)));
+    features.put("first_name_weight", "0.5");
+    features.put("last_name", stringFor(doc, nList.get(0)));
+    features.put("last_name_weight", "0.5");
+  }
+  outputAS.add(pn2Set.firstNode(), pn2Set.lastNode(), "PersonName", features);
+}

@@ -1,0 +1,36 @@
+Mr Smith is the token under consideration starts with a capital letter and the token after is a last_name, and the same case that Mr Smith is not at the beginning of a sentence.
+
+Professor John Clinton is the token under consideration starts with a capital letter and the two tokens after are first_name followed by a last_name, and the same case that Professor John Clinton is not at the beginning of a sentence.
+
+Dr. Peter is the token under consideration starts with a capital letter and the token after is a first_name, and the same case that Dr. Peter is not at the beginning of a sentence.
+
+
+blah blah blah and Chairman Yinxue is the token under consideration starts with a lower_case letter.
+
+Another case about Professor Alex's house.
+
+Is this the token under consideration that is a verb?
+
+Some other cases: Dr. is a title, and so is Doctor. The following words are also titles: Miss, Princess, Sir and Madam (They are not in the initial list of titles) But could appear in the sentence, such as:
+Princess Wong and Miss Ying is a doctor. Ying is in the first name list, but Wong is not. But Rev. Wong should be highlighted since the title 'Rev.' is already in the title list.
+
+
+
+
+
+
+==== Following is the data used in HW5 ====
+Park Ji Sung and Jonny Evans are expected to commit their long-term futures to Manchester United in the coming weeks as the English, European and world champions continue to plan for life after Sir Alex Ferguson .
+However Mr Alex Ferguson was unavailable to comment. 
+
+since Prof. Zhou is aaa.
+Yest a Mr Uww has a big.
+President Oooababa now.
+Jonny is the first name.
+Evans is the last name.
+Miss Xin Zhou.
+A Sir Uww.
+...end of a sentence. Notitle Uww.
+Notitle Alex.
+Prof. Alex (title at the beginning of a sentence).
+

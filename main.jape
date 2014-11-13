@@ -1,0 +1,4 @@
+MultiPhase: PersonTitleWithWeightMain
+Phases:
+person_name
+person_title_with_weight
