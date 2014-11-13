@@ -7,7 +7,7 @@ Briefly sketch out the approach: list all the data you are considering, create t
 
 Initial list of titles: Mister, Mr., Mrs., Professor, Doctor, Dr., President, Reverend, Rev., General, Colonel, Chairman
 
-First names: JOhn, Peter, LUke, Matthew, Simon, Saul, Sarah, Ruth, Nalini, Priya, Amit, Rahul, Narendra, Yuan, Shufeng, Luming, Ying, Yinxue, Juan
+First names: John, Peter, Luke, Matthew, Simon, Saul, Sarah, Ruth, Nalini, Priya, Amit, Rahul, Narendra, Yuan, Shufeng, Luming, Ying, Yinxue, Juan
 
 Last names: Smith, Jones, Bush, Cliton, Nixon, Liu, Khan, Kim, Chang, Deng, Patel, Kumar, Agarwal, Gandhi, Rodriguez
 
